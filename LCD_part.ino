@@ -1,16 +1,17 @@
 
-/*  LCD RS to digital pin 7
- *  LCD Enable pin to digital pin 8
- *  LCD D4 pin to digital pin 9
- *  LCD D5 pin to digital pin 10
- *  LCD D6 pin to digital pin 11
- *  LCD D7 pin to digital pin 12
- *  LCD R/W pin to ground
- *  LCD VSS pin to ground
- *  LCD VCC pin to 5V
- *  10K resistor:
- *  ends to +5V and ground
- *  wiper to LCD V0 pin (pin 3)  
+/*  LCD pins
+ *  RS to digital 7
+ *  E(nable) to digital 8
+ *  D4 to digital 9
+ *  D5 to digital 10
+ *  D6 to digital 11
+ *  D7 to digital 12
+ *  R/W to ground
+ *  VSS to ground
+ *  VDD to 5V
+ *  K to ground
+ *  A to 5V 
+ *  V0 to (analog pin of potentiometer)
  */
 
 # include <LiquidCrystal.h>
@@ -49,7 +50,7 @@ int pot_rf(int pot_pin){
   int i = 0;
   sum_vals = 0;
   avg_val = 0;
-  while (i <= sample_size -1) {          //Loop while you could up 0-sample_size
+  while (i <= sample_size -1) {          //Loop until you reach the desired sample_size
     sum_vals = sum_vals + analogRead(pot_pin);
     i = i + 1;
   }
@@ -86,17 +87,17 @@ void printVals(int pdir_read, int pang_read){
 
 void loop() {
 
-  dir_read = pot_rf(dir_pot_pin);
-  ang_read = pot_rf(ang_pot_pin);  
-  dir_mapped = pot_map(dir_read, dir_max);
-  ang_mapped = pot_map(ang_read, ang_max);
+  dir_read = pot_rf(dir_pot_pin);         //straight reading from the potentiometer for direction 
+  ang_read = pot_rf(ang_pot_pin);         //straight reading from the potentiometer for angle 
+  dir_mapped = pot_map(dir_read, dir_max);        //direction reading mapped to desired range (0-359)
+  ang_mapped = pot_map(ang_read, ang_max);        //angle reading mapped to desired range (0-15)
 
-  dir_output = steady_val(dir_mapped, old_dir_mapped);
-  ang_output = steady_val(ang_mapped, old_ang_mapped);
-
+  dir_output = steady_val(dir_mapped, old_dir_mapped);          //keeps direction from jumping by 1, cuts out noise
+  ang_output = steady_val(ang_mapped, old_ang_mapped);          //keeps angle from jumping by 1, cuts out noise
   old_dir_mapped = dir_output;
   
-  printVals(dir_output, ang_output);
+  printVals(dir_output, ang_output);          //prints out the steadied direction and angle
+  
   delay(200);         //delay of 200 msec, to allow for steadier printouts
 
 }
